@@ -24,10 +24,10 @@ data class BottomNavItem(
 )
 
 val bottomNavItems = listOf(
-    BottomNavItem("Inicio",   Icons.Default.Home,        Screen.Home.route),
-    BottomNavItem("Catálogo", Icons.Default.Search,      Screen.Catalog.route),
-    BottomNavItem("Mi Caja",  Icons.Default.ShoppingBag, Screen.Box.route),
-    BottomNavItem("Perfil",   Icons.Default.Person,      Screen.Profile.route),
+    BottomNavItem("Home",    Icons.Default.Home,        Screen.Home.route),
+    BottomNavItem("Catalog", Icons.Default.Search,      Screen.Catalog.route),
+    BottomNavItem("My Box",  Icons.Default.ShoppingBag, Screen.Box.route),
+    BottomNavItem("Profile", Icons.Default.Person,      Screen.Profile.route),
 )
 
 @Composable
