@@ -24,10 +24,10 @@ data class BottomNavItem(
 )
 
 val bottomNavItems = listOf(
-    BottomNavItem("Inicio",    Icons.Default.Home,        Screen.Home.route),
-    BottomNavItem("Catálogo",  Icons.Default.Search,      Screen.Catalog.route),
-    BottomNavItem("Mi Caja",   Icons.Default.ShoppingBag, Screen.Box.route),
-    BottomNavItem("Perfil",    Icons.Default.Person,      Screen.Profile.route),
+    BottomNavItem("Inicio",   Icons.Default.Home,        Screen.Home.route),
+    BottomNavItem("Catálogo", Icons.Default.Search,      Screen.Catalog.route),
+    BottomNavItem("Mi Caja",  Icons.Default.ShoppingBag, Screen.Box.route),
+    BottomNavItem("Perfil",   Icons.Default.Person,      Screen.Profile.route),
 )
 
 @Composable
@@ -53,7 +53,6 @@ fun AppNavigation() {
                             selected = currentRoute == item.route,
                             onClick = {
                                 navController.navigate(item.route) {
-                                    // Evita apilar la misma pantalla múltiples veces
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -185,7 +184,11 @@ fun AppNavigation() {
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
