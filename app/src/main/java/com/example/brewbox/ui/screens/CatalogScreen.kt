@@ -2,6 +2,7 @@ package com.example.brewbox.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -38,7 +39,7 @@ data class CoffeeItem(
 )
 
 @Composable
-fun CatalogScreen() {
+fun CatalogScreen(onCoffeeDetail: (Int) -> Unit = {}) {
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Colombia", "Ethiopia", "Brazil", "Kenya")
 
@@ -129,15 +130,15 @@ fun CatalogScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
             items(filteredCoffees) { coffee ->
-                CoffeeCard(coffee = coffee)
+                CoffeeCard(coffee = coffee, onClick = { onCoffeeDetail(coffee.id) })
             }
         }
     }
 }
 
 @Composable
-fun CoffeeCard(coffee: CoffeeItem) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+fun CoffeeCard(coffee: CoffeeItem, onClick: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth().clickable { onClick() }) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

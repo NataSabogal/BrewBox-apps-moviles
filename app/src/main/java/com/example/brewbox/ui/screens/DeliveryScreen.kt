@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun DeliveryScreen(onConfirm: () -> Unit) {
+fun DeliveryScreen(onBack: () -> Unit = {}, onConfirm: () -> Unit) {
 
     // ── Estado de campos ──────────────────────────────────────────────
     var fullName      by remember { mutableStateOf("") }
@@ -96,8 +97,15 @@ fun DeliveryScreen(onConfirm: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = darkBrown
+                        )
+                    }
                     Text(
-                        text = "← Delivery address",
+                        text = "Delivery address",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = darkBrown,

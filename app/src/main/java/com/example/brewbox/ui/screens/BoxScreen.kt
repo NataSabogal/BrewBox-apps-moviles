@@ -253,11 +253,11 @@ fun BoxScreen(onScan: () -> Unit) {
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Brown300.copy(alpha = 0.3f),
-                contentColor = DarkBrown.copy(alpha = 0.5f)
+                containerColor = Brown700,
+                contentColor = Cream
             ),
-            enabled = false,
-            elevation = ButtonDefaults.buttonElevation(0.dp)
+            enabled = true,
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
         ) {
             Text(text = "📦 Scan Package", fontSize = 15.sp)
         }

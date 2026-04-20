@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun RegisterScreen(onRegister: () -> Unit) {
+fun RegisterScreen(onRegister: () -> Unit, onBackToLogin: () -> Unit) {
 
     // --- Estado de los campos ---
     var fullName    by remember { mutableStateOf("") }
@@ -314,6 +314,27 @@ fun RegisterScreen(onRegister: () -> Unit) {
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            TextButton(
+                onClick = onBackToLogin,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "Already have an account? ",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = darkBrown.copy(alpha = 0.6f)
+                    )
+                    Text(
+                        "Sign In",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = primaryBrown,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(Modifier.height(32.dp))

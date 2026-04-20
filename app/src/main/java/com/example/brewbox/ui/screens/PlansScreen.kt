@@ -8,7 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.brewbox.ui.theme.*
 
 @Composable
-fun PlansScreen(onSelectPlan: () -> Unit) {
+fun PlansScreen(onBack: () -> Unit = {}, onSelectPlan: () -> Unit) {
 
     var selectedPlan by remember { mutableStateOf(1) } // 0=Basic, 1=Explorer, 2=Barista
 
@@ -88,8 +88,8 @@ fun PlansScreen(onSelectPlan: () -> Unit) {
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Brown700)
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Brown700)
                 }
                 Text(
                     text = "Choose your plan",
