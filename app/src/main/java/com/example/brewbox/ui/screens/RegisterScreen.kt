@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun RegisterScreen(onRegister: () -> Unit, onBackToLogin: () -> Unit) {
+fun RegisterScreen(onRegister: (String, String, String, String) -> Unit, onBackToLogin: () -> Unit) {
 
     // --- Estado de los campos ---
     var fullName    by remember { mutableStateOf("") }
@@ -298,7 +298,7 @@ fun RegisterScreen(onRegister: () -> Unit, onBackToLogin: () -> Unit) {
             // ── Botón Create ─────────────────────────────────────────
             Button(
                 onClick = {
-                    if (validate()) onRegister()
+                    if (validate()) onRegister(email, fullName, address, birthday)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

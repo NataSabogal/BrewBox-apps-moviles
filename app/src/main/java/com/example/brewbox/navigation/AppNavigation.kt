@@ -15,6 +15,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.brewbox.viewmodel.AuthViewModel
+import androidx.compose.runtime.collectAsState
 import com.example.brewbox.ui.screens.*
 
 data class BottomNavItem(
@@ -33,6 +36,8 @@ val bottomNavItems = listOf(
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState(initial = false)
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -98,7 +103,8 @@ fun AppNavigation() {
 
             composable(Screen.Login.route) {
                 LoginScreen(
-                    onSignIn = {
+                    onSignIn = { email ->
+                        authViewModel.login(email)
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Splash.route) { inclusive = true }
                         }
@@ -111,7 +117,8 @@ fun AppNavigation() {
 
             composable(Screen.Register.route) {
                 RegisterScreen(
-                    onRegister = {
+                    onRegister = { email, name, address, birthday ->
+                        authViewModel.register(email, name, address, birthday)
                         navController.navigate(Screen.Plans.route)
                     },
                     onBackToLogin = {
@@ -210,11 +217,14 @@ fun AppNavigation() {
             }
 
             composable(Screen.Profile.route) {
+                val currentUser by authViewModel.currentUser.collectAsState(initial = null)
                 ProfileScreen(
+                    userData = currentUser,
                     onBack = {
                         navController.popBackStack()
                     },
                     onSignOut = {
+                        authViewModel.logout()
                         navController.navigate(Screen.Login.route) {
                             popUpTo(0) { inclusive = true }
                         }

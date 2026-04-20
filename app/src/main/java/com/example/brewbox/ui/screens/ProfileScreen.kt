@@ -19,16 +19,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.brewbox.ui.theme.*
+import com.example.brewbox.data.UserEntity
 
 @Composable
 fun ProfileScreen(
+    userData: UserEntity? = null,
     onBack: () -> Unit = {},
     onSignOut: () -> Unit = {}
 ) {
-    var fullName by remember { mutableStateOf("James Brewington") }
-    var email by remember { mutableStateOf("james.b@example.com") }
+    var fullName by remember(userData) { mutableStateOf(userData?.fullName ?: "James Brewington") }
+    var email by remember(userData) { mutableStateOf(userData?.email ?: "james.b@example.com") }
     var phone by remember { mutableStateOf("+1 (555) 000-1234") }
-    var address by remember { mutableStateOf("123 Espresso Lane") }
+    var address by remember(userData) { mutableStateOf(userData?.address ?: "123 Espresso Lane") }
     var city by remember { mutableStateOf("Seattle") }
     var zip by remember { mutableStateOf("98101") }
 

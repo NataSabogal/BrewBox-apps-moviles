@@ -24,7 +24,7 @@ import com.example.brewbox.ui.theme.*
 
 @Composable
 fun LoginScreen(
-    onSignIn: () -> Unit,
+    onSignIn: (String) -> Unit,
     onCreateAccount: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(0) }
@@ -202,7 +202,7 @@ fun LoginScreen(
                 if (email.isBlank()) { emailError = "Enter your email"; valid = false }
                 if (password.isBlank()) { passwordError = "Enter your password"; valid = false }
                 if (valid) {
-                    if (selectedTab == 0) onSignIn() else onCreateAccount()
+                    if (selectedTab == 0) onSignIn(email) else onCreateAccount()
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
