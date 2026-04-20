@@ -113,12 +113,18 @@ fun AppNavigation() {
                 RegisterScreen(
                     onRegister = {
                         navController.navigate(Screen.Plans.route)
+                    },
+                    onBackToLogin = {
+                        navController.popBackStack()
                     }
                 )
             }
 
             composable(Screen.Plans.route) {
                 PlansScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
                     onSelectPlan = {
                         navController.navigate(Screen.Payment.route)
                     }
@@ -127,6 +133,9 @@ fun AppNavigation() {
 
             composable(Screen.Payment.route) {
                 PaymentScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
                     onConfirm = {
                         navController.navigate(Screen.Delivery.route)
                     }
@@ -135,6 +144,9 @@ fun AppNavigation() {
 
             composable(Screen.Delivery.route) {
                 DeliveryScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
                     onConfirm = {
                         navController.navigate(Screen.Success.route)
                     }
@@ -152,11 +164,25 @@ fun AppNavigation() {
             }
 
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(
+                    onTrackOrder = {
+                        navController.navigate(Screen.Box.route)
+                    },
+                    onSeeHistory = {
+                        navController.navigate(Screen.Catalog.route)
+                    },
+                    onCoffeeDetail = {
+                        navController.navigate(Screen.CoffeeDetail.route)
+                    }
+                )
             }
 
             composable(Screen.Catalog.route) {
-                CatalogScreen()
+                CatalogScreen(
+                    onCoffeeDetail = { coffeeId ->
+                        navController.navigate(Screen.CoffeeDetail.route)
+                    }
+                )
             }
 
             composable(Screen.Box.route) {
@@ -187,6 +213,11 @@ fun AppNavigation() {
                 ProfileScreen(
                     onBack = {
                         navController.popBackStack()
+                    },
+                    onSignOut = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 )
             }

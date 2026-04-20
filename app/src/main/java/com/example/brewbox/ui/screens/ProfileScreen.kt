@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +21,10 @@ import androidx.compose.ui.unit.sp
 import com.example.brewbox.ui.theme.*
 
 @Composable
-fun ProfileScreen(onBack: () -> Unit = {}) {
+fun ProfileScreen(
+    onBack: () -> Unit = {},
+    onSignOut: () -> Unit = {}
+) {
     var fullName by remember { mutableStateOf("James Brewington") }
     var email by remember { mutableStateOf("james.b@example.com") }
     var phone by remember { mutableStateOf("+1 (555) 000-1234") }
@@ -46,7 +49,7 @@ fun ProfileScreen(onBack: () -> Unit = {}) {
         ) {
             IconButton(onClick = onBack) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = DarkBrown
                 )
@@ -239,7 +242,7 @@ fun ProfileScreen(onBack: () -> Unit = {}) {
             )
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
-                onClick = {},
+                onClick = onSignOut,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),

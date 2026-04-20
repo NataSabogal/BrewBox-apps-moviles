@@ -1,6 +1,7 @@
 package com.example.brewbox.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,7 +22,11 @@ import androidx.compose.ui.unit.sp
 import com.example.brewbox.ui.theme.*
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onTrackOrder: () -> Unit = {},
+    onSeeHistory: () -> Unit = {},
+    onCoffeeDetail: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -180,7 +185,7 @@ fun HomeScreen() {
                             color = DarkBrown.copy(alpha = 0.6f)
                         )
                         Button(
-                            onClick = {},
+                            onClick = onTrackOrder,
                             shape = RoundedCornerShape(20.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Brown700)
                         ) {
@@ -255,7 +260,7 @@ fun HomeScreen() {
                 fontWeight = FontWeight.Bold,
                 color = DarkBrown
             )
-            TextButton(onClick = {}) {
+            TextButton(onClick = onSeeHistory) {
                 Text(
                     text = "SEE HISTORY",
                     fontSize = 11.sp,
@@ -271,7 +276,8 @@ fun HomeScreen() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .clickable { onCoffeeDetail() },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(2.dp)
@@ -330,7 +336,8 @@ fun HomeScreen() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .clickable { onCoffeeDetail() },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Brown700.copy(alpha = 0.08f)),
             elevation = CardDefaults.cardElevation(0.dp)

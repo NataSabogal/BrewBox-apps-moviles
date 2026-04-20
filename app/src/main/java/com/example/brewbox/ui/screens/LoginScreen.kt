@@ -73,7 +73,13 @@ fun LoginScreen(
         ) {
             listOf("Sign In", "Create Account").forEachIndexed { index, label ->
                 Button(
-                    onClick = { selectedTab = index },
+                    onClick = {
+                        if (index == 0) {
+                            selectedTab = 0
+                        } else {
+                            onCreateAccount()
+                        }
+                    },
                     modifier = Modifier.weight(1f).height(40.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
