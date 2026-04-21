@@ -13,7 +13,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val userDao = AppDatabase.getDatabase(application).userDao()
     private val userPreferences = UserPreferences(application)
 
-    // Solo para saber si mostrar el bottom bar, etc.
     val isLoggedIn: Flow<Boolean> = userPreferences.isLoggedIn
     
     val currentUser: Flow<UserEntity?> = userPreferences.userEmail.flatMapLatest { email ->
@@ -27,9 +26,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _loginError = MutableStateFlow<String?>(null)
     val loginError: StateFlow<String?> = _loginError
 
-    // Al iniciar el ViewModel (cuando abre la app), forzamos el cierre de sesión 
-    // para que el requisito 4 se cumpla: siempre pedir login al abrir.
     init {
+        // Mantenemos el requisito de pedir login al arrancar la app de cero
         logout()
     }
 
@@ -43,7 +41,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 password = password
             )
             userDao.insertUser(newUser)
-            // No logueamos automáticamente para forzar que pase por el LoginScreen
+            // Logueamos automáticamente para que al terminar el flujo de registro 
+            // el usuario entre directamente al Home con su sesión iniciada.
+            userPreferences.setLoggedIn(true, email)
         }
     }
 

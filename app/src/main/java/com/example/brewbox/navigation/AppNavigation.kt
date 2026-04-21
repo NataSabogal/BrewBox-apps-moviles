@@ -7,8 +7,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -17,7 +16,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.brewbox.viewmodel.AuthViewModel
-import androidx.compose.runtime.collectAsState
 import com.example.brewbox.ui.screens.*
 
 data class BottomNavItem(
@@ -37,8 +35,15 @@ val bottomNavItems = listOf(
 fun AppNavigation() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
-    val isLoggedIn by authViewModel.isLoggedIn.collectAsState(initial = false)
     val loginError by authViewModel.loginError.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState(initial = null)
+
+    // Variables temporales para guardar los datos del registro durante el flujo
+    var tempEmail by remember { mutableStateOf("") }
+    var tempName by remember { mutableStateOf("") }
+    var tempAddress by remember { mutableStateOf("") }
+    var tempBirthday by remember { mutableStateOf("") }
+    var tempPassword by remember { mutableStateOf("") }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -87,25 +92,11 @@ fun AppNavigation() {
         ) {
 
             composable(Screen.Splash.route) {
-                SplashScreen(
-                    onContinue = {
-                        if (isLoggedIn) {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(Screen.Splash.route) { inclusive = true }
-                            }
-                        } else {
-                            navController.navigate(Screen.Onboarding.route)
-                        }
-                    }
-                )
+                SplashScreen(onContinue = { navController.navigate(Screen.Onboarding.route) })
             }
 
             composable(Screen.Onboarding.route) {
-                OnboardingScreen(
-                    onContinue = {
-                        navController.navigate(Screen.Login.route)
-                    }
-                )
+                OnboardingScreen(onContinue = { navController.navigate(Screen.Login.route) })
             }
 
             composable(Screen.Login.route) {
@@ -119,9 +110,7 @@ fun AppNavigation() {
                             }
                         }
                     },
-                    onCreateAccount = {
-                        navController.navigate(Screen.Register.route)
-                    },
+                    onCreateAccount = { navController.navigate(Screen.Register.route) },
                     errorMessage = loginError,
                     onClearError = { authViewModel.clearError() }
                 )
@@ -130,43 +119,37 @@ fun AppNavigation() {
             composable(Screen.Register.route) {
                 RegisterScreen(
                     onRegister = { email, name, address, birthday, password ->
-                        authViewModel.register(email, name, address, birthday, password)
+                        // Guardamos temporalmente y seguimos el flujo
+                        tempEmail = email
+                        tempName = name
+                        tempAddress = address
+                        tempBirthday = birthday
+                        tempPassword = password
                         navController.navigate(Screen.Plans.route)
                     },
-                    onBackToLogin = {
-                        navController.popBackStack()
-                    }
+                    onBackToLogin = { navController.popBackStack() }
                 )
             }
 
             composable(Screen.Plans.route) {
                 PlansScreen(
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onSelectPlan = {
-                        navController.navigate(Screen.Payment.route)
-                    }
+                    onBack = { navController.popBackStack() },
+                    onSelectPlan = { navController.navigate(Screen.Payment.route) }
                 )
             }
 
             composable(Screen.Payment.route) {
                 PaymentScreen(
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onConfirm = {
-                        navController.navigate(Screen.Delivery.route)
-                    }
+                    onBack = { navController.popBackStack() },
+                    onConfirm = { navController.navigate(Screen.Delivery.route) }
                 )
             }
 
             composable(Screen.Delivery.route) {
                 DeliveryScreen(
-                    onBack = {
-                        navController.popBackStack()
-                    },
+                    onBack = { navController.popBackStack() },
                     onConfirm = {
+                        authViewModel.register(tempEmail, tempName, tempAddress, tempBirthday, tempPassword)
                         navController.navigate(Screen.Success.route)
                     }
                 )
@@ -184,57 +167,33 @@ fun AppNavigation() {
 
             composable(Screen.Home.route) {
                 HomeScreen(
-                    onTrackOrder = {
-                        navController.navigate(Screen.Box.route)
-                    },
-                    onSeeHistory = {
-                        navController.navigate(Screen.Catalog.route)
-                    },
-                    onCoffeeDetail = {
-                        navController.navigate(Screen.CoffeeDetail.route)
-                    }
+                    userName = currentUser?.fullName,
+                    onTrackOrder = { navController.navigate(Screen.Box.route) },
+                    onSeeHistory = { navController.navigate(Screen.Catalog.route) },
+                    onCoffeeDetail = { navController.navigate(Screen.CoffeeDetail.route) }
                 )
             }
 
             composable(Screen.Catalog.route) {
-                CatalogScreen(
-                    onCoffeeDetail = { coffeeId ->
-                        navController.navigate(Screen.CoffeeDetail.route)
-                    }
-                )
+                CatalogScreen(onCoffeeDetail = { coffeeId -> navController.navigate(Screen.CoffeeDetail.route) })
             }
 
             composable(Screen.Box.route) {
-                BoxScreen(
-                    onScan = {
-                        navController.navigate(Screen.Scan.route)
-                    }
-                )
+                BoxScreen(onScan = { navController.navigate(Screen.Scan.route) })
             }
 
             composable(Screen.Scan.route) {
-                ScanScreen(
-                    onBack = {
-                        navController.popBackStack()
-                    }
-                )
+                ScanScreen(onBack = { navController.popBackStack() })
             }
 
             composable(Screen.CoffeeDetail.route) {
-                CoffeeDetailScreen(
-                    onBack = {
-                        navController.popBackStack()
-                    }
-                )
+                CoffeeDetailScreen(onBack = { navController.popBackStack() })
             }
 
             composable(Screen.Profile.route) {
-                val currentUser by authViewModel.currentUser.collectAsState(initial = null)
                 ProfileScreen(
                     userData = currentUser,
-                    onBack = {
-                        navController.popBackStack()
-                    },
+                    onBack = { navController.popBackStack() },
                     onSignOut = {
                         authViewModel.logout()
                         navController.navigate(Screen.Login.route) {
