@@ -23,6 +23,7 @@ import com.example.brewbox.ui.theme.*
 
 @Composable
 fun HomeScreen(
+    userName: String? = null,
     onTrackOrder: () -> Unit = {},
     onSeeHistory: () -> Unit = {},
     onCoffeeDetail: () -> Unit = {}
@@ -43,7 +44,7 @@ fun HomeScreen(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Good morning, Alex ",
+                        text = "Good morning, ${userName?.split(" ")?.firstOrNull() ?: "Coffee Lover"} ",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = DarkBrown
