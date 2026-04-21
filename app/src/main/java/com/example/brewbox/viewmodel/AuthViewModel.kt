@@ -4,39 +4,75 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.brewbox.data.*
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val userDao = AppDatabase.getDatabase(application).userDao()
     private val userPreferences = UserPreferences(application)
 
-    val currentUser: Flow<UserEntity?> = userDao.getUser()
+    // Solo para saber si mostrar el bottom bar, etc.
     val isLoggedIn: Flow<Boolean> = userPreferences.isLoggedIn
+    
+    val currentUser: Flow<UserEntity?> = userPreferences.userEmail.flatMapLatest { email ->
+        if (email != null) {
+            userDao.getUserByEmail(email)
+        } else {
+            flowOf(null)
+        }
+    }
 
-    fun register(email: String, fullName: String, address: String, birthday: String) {
+    private val _loginError = MutableStateFlow<String?>(null)
+    val loginError: StateFlow<String?> = _loginError
+
+    // Al iniciar el ViewModel (cuando abre la app), forzamos el cierre de sesión 
+    // para que el requisito 4 se cumpla: siempre pedir login al abrir.
+    init {
+        logout()
+    }
+
+    fun register(email: String, fullName: String, address: String, birthday: String, password: String) {
         viewModelScope.launch {
             val newUser = UserEntity(
                 email = email,
                 fullName = fullName,
                 address = address,
-                birthday = birthday
+                birthday = birthday,
+                password = password
             )
             userDao.insertUser(newUser)
-            userPreferences.setLoggedIn(true, email)
+            // No logueamos automáticamente para forzar que pase por el LoginScreen
         }
     }
 
-    fun login(email: String) {
+    fun login(email: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            userPreferences.setLoggedIn(true, email)
+            val user = userDao.findUserByEmail(email)
+            if (user != null) {
+                if (user.password == password) {
+                    userPreferences.setLoggedIn(true, email)
+                    _loginError.value = null
+                    onResult(true)
+                } else {
+                    _loginError.value = "Contraseña incorrecta"
+                    onResult(false)
+                }
+            } else {
+                _loginError.value = "Este correo no está registrado"
+                onResult(false)
+            }
         }
     }
 
     fun logout() {
         viewModelScope.launch {
             userPreferences.setLoggedIn(false)
-            userDao.clearUser()
         }
+    }
+    
+    fun clearError() {
+        _loginError.value = null
     }
 }

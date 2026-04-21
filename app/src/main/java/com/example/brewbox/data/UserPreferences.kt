@@ -15,11 +15,14 @@ class UserPreferences(private val context: Context) {
     companion object {
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val USER_EMAIL = stringPreferencesKey("user_email")
-        val THEME_MODE = stringPreferencesKey("theme_mode")
     }
 
     val isLoggedIn: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[IS_LOGGED_IN] ?: false
+    }
+
+    val userEmail: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[USER_EMAIL]
     }
 
     suspend fun setLoggedIn(loggedIn: Boolean, email: String? = null) {

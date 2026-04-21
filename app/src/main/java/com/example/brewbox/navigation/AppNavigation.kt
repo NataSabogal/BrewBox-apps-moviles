@@ -38,6 +38,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val isLoggedIn by authViewModel.isLoggedIn.collectAsState(initial = false)
+    val loginError by authViewModel.loginError.collectAsState()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -88,7 +89,13 @@ fun AppNavigation() {
             composable(Screen.Splash.route) {
                 SplashScreen(
                     onContinue = {
-                        navController.navigate(Screen.Onboarding.route)
+                        if (isLoggedIn) {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Splash.route) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(Screen.Onboarding.route)
+                        }
                     }
                 )
             }
@@ -103,22 +110,27 @@ fun AppNavigation() {
 
             composable(Screen.Login.route) {
                 LoginScreen(
-                    onSignIn = { email ->
-                        authViewModel.login(email)
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Splash.route) { inclusive = true }
+                    onSignIn = { email, password ->
+                        authViewModel.login(email, password) { success ->
+                            if (success) {
+                                navController.navigate(Screen.Home.route) {
+                                    popUpTo(Screen.Login.route) { inclusive = true }
+                                }
+                            }
                         }
                     },
                     onCreateAccount = {
                         navController.navigate(Screen.Register.route)
-                    }
+                    },
+                    errorMessage = loginError,
+                    onClearError = { authViewModel.clearError() }
                 )
             }
 
             composable(Screen.Register.route) {
                 RegisterScreen(
-                    onRegister = { email, name, address, birthday ->
-                        authViewModel.register(email, name, address, birthday)
+                    onRegister = { email, name, address, birthday, password ->
+                        authViewModel.register(email, name, address, birthday, password)
                         navController.navigate(Screen.Plans.route)
                     },
                     onBackToLogin = {

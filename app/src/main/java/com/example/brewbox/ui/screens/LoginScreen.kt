@@ -24,8 +24,10 @@ import com.example.brewbox.ui.theme.*
 
 @Composable
 fun LoginScreen(
-    onSignIn: (String) -> Unit,
-    onCreateAccount: () -> Unit
+    onSignIn: (String, String) -> Unit, // Cambiado para recibir password
+    onCreateAccount: () -> Unit,
+    errorMessage: String? = null,
+    onClearError: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     var email by remember { mutableStateOf("") }
@@ -35,6 +37,11 @@ fun LoginScreen(
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
 
+    // Limpiar error externo cuando el usuario escribe
+    LaunchedEffect(email, password) {
+        if (errorMessage != null) onClearError()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,12 +50,10 @@ fun LoginScreen(
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // ... (resto del código del logo y textos)
         Spacer(Modifier.height(48.dp))
-
-        // Logo
         Text(text = "☕", fontSize = 40.sp)
         Spacer(Modifier.height(16.dp))
-
         Text(
             text = "Welcome to BrewBox",
             style = MaterialTheme.typography.headlineMedium,
@@ -62,7 +67,6 @@ fun LoginScreen(
             color = DarkBrown.copy(alpha = 0.6f),
             textAlign = TextAlign.Center
         )
-
         Spacer(Modifier.height(28.dp))
 
         Row(
@@ -74,17 +78,12 @@ fun LoginScreen(
             listOf("Sign In", "Create Account").forEachIndexed { index, label ->
                 Button(
                     onClick = {
-                        if (index == 0) {
-                            selectedTab = 0
-                        } else {
-                            onCreateAccount()
-                        }
+                        if (index == 0) selectedTab = 0 else onCreateAccount()
                     },
                     modifier = Modifier.weight(1f).height(40.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedTab == index) Brown700
-                        else androidx.compose.ui.graphics.Color.Transparent,
+                        containerColor = if (selectedTab == index) Brown700 else androidx.compose.ui.graphics.Color.Transparent,
                         contentColor = if (selectedTab == index) Cream else DarkBrown
                     ),
                     elevation = ButtonDefaults.buttonElevation(0.dp)
@@ -95,22 +94,6 @@ fun LoginScreen(
         }
 
         Spacer(Modifier.height(24.dp))
-
-        if (selectedTab == 1) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Full name") },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Brown700,
-                    unfocusedBorderColor = Brown300
-                )
-            )
-            Spacer(Modifier.height(12.dp))
-        }
 
         OutlinedTextField(
             value = email,
@@ -123,16 +106,16 @@ fun LoginScreen(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(12.dp),
-            isError = emailError.isNotEmpty(),
+            isError = emailError.isNotEmpty() || (errorMessage != null && errorMessage.contains("correo")),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Brown700,
                 unfocusedBorderColor = Brown300,
                 errorBorderColor = ErrorRed
             )
         )
-        if (emailError.isNotEmpty()) {
+        if (emailError.isNotEmpty() || (errorMessage != null && errorMessage.contains("correo"))) {
             Text(
-                text = emailError,
+                text = if (emailError.isNotEmpty()) emailError else errorMessage ?: "",
                 color = ErrorRed,
                 fontSize = 11.sp,
                 modifier = Modifier.fillMaxWidth().padding(start = 4.dp, top = 2.dp)
@@ -151,80 +134,48 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = if (passwordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility
-                        else Icons.Default.VisibilityOff,
+                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = null,
                         tint = Brown300
                     )
                 }
             },
             shape = RoundedCornerShape(12.dp),
-            isError = passwordError.isNotEmpty(),
+            isError = passwordError.isNotEmpty() || (errorMessage != null && errorMessage.contains("Contraseña")),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Brown700,
                 unfocusedBorderColor = Brown300,
                 errorBorderColor = ErrorRed
             )
         )
-        if (passwordError.isNotEmpty()) {
+        if (passwordError.isNotEmpty() || (errorMessage != null && errorMessage.contains("Contraseña"))) {
             Text(
-                text = passwordError,
+                text = if (passwordError.isNotEmpty()) passwordError else errorMessage ?: "",
                 color = ErrorRed,
                 fontSize = 11.sp,
                 modifier = Modifier.fillMaxWidth().padding(start = 4.dp, top = 2.dp)
             )
         }
 
-        if (selectedTab == 0) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                TextButton(onClick = {}) {
-                    Text(
-                        "Forgot password?",
-                        fontSize = 12.sp,
-                        color = Brown700
-                    )
-                }
-            }
-        } else {
-            Spacer(Modifier.height(12.dp))
-        }
-
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(24.dp))
 
         Button(
             onClick = {
                 var valid = true
                 if (email.isBlank()) { emailError = "Enter your email"; valid = false }
                 if (password.isBlank()) { passwordError = "Enter your password"; valid = false }
-                if (valid) {
-                    if (selectedTab == 0) onSignIn(email) else onCreateAccount()
-                }
+                if (valid) onSignIn(email, password)
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Brown700)
         ) {
-            Text(
-                text = if (selectedTab == 0) "Sign In" else "Create",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Cream
-            )
+            Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Cream)
         }
-
-        Spacer(Modifier.height(20.dp))
-
-        Text(
-            "OR CONTINUE WITH",
-            fontSize = 11.sp,
-            color = DarkBrown.copy(alpha = 0.4f),
-            letterSpacing = 1.sp
-        )
 
         Spacer(Modifier.height(48.dp))
     }

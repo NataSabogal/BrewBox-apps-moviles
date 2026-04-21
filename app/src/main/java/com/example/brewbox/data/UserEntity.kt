@@ -9,6 +9,7 @@ data class UserEntity(
     val fullName: String,
     val address: String,
     val birthday: String,
+    val password: String, // Añadimos el campo password
     val profileImage: String? = null,
     val subscriptionPlan: String? = null
 )
