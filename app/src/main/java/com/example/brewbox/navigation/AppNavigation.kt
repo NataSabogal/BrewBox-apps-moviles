@@ -197,6 +197,11 @@ fun AppNavigation() {
                 ScanScreen(
                     onBack = {
                         navController.popBackStack()
+                    },
+                    onScanSuccess = { qrResult ->
+                        navController.navigate(Screen.CoffeeDetail.route) {
+                            popUpTo(Screen.Scan.route) { inclusive = true }
+                        }
                     }
                 )
             }
