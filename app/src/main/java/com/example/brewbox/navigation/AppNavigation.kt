@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.brewbox.viewmodel.AuthViewModel
 import com.example.brewbox.ui.screens.*
+import com.example.brewbox.notifications.NotificationHelper
+import androidx.compose.ui.platform.LocalContext
 
 data class BottomNavItem(
     val label: String,
@@ -33,6 +35,8 @@ val bottomNavItems = listOf(
 
 @Composable
 fun AppNavigation() {
+    val context = LocalContext.current
+    val notificationHelper = remember { NotificationHelper(context) }
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val loginError by authViewModel.loginError.collectAsState()
@@ -150,6 +154,10 @@ fun AppNavigation() {
                     onBack = { navController.popBackStack() },
                     onConfirm = {
                         authViewModel.register(tempEmail, tempName, tempAddress, tempBirthday, tempPassword)
+                        notificationHelper.showNotification(
+                            "¡Registro Exitoso!",
+                            "Bienvenido a BrewBox, $tempName. Tu suscripción ha comenzado."
+                        )
                         navController.navigate(Screen.Success.route)
                     }
                 )
@@ -188,6 +196,10 @@ fun AppNavigation() {
                         navController.popBackStack()
                     },
                     onScanSuccess = { qrResult ->
+                        notificationHelper.showNotification(
+                            "Café escaneado",
+                            "Hemos encontrado la información de tu café: $qrResult"
+                        )
                         navController.navigate(Screen.CoffeeDetail.route) {
                             popUpTo(Screen.Scan.route) { inclusive = true }
                         }

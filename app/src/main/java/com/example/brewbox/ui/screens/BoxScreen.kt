@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,15 +18,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.brewbox.viewmodel.BoxViewModel
+import com.example.brewbox.viewmodel.ShippingStatus
 import com.example.brewbox.ui.theme.*
 
 @Composable
-fun BoxScreen(onScan: () -> Unit) {
+fun BoxScreen(onScan: () -> Unit, boxViewModel: BoxViewModel = viewModel()) {
+    val shippingStatus by boxViewModel.shippingStatus.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Cream)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
     ) {
         Row(
             modifier = Modifier
@@ -46,10 +53,21 @@ fun BoxScreen(onScan: () -> Unit) {
                 )
             }
 
-            IconButton(onClick = {}) {
+            IconButton(
+                onClick = {
+                    // Simulación: Avanzar al siguiente estado para probar notificaciones
+                    val nextStatus = when (shippingStatus) {
+                        ShippingStatus.ROASTED -> ShippingStatus.SHIPPED
+                        ShippingStatus.SHIPPED -> ShippingStatus.NEARBY
+                        ShippingStatus.NEARBY -> ShippingStatus.DELIVERED
+                        ShippingStatus.DELIVERED -> ShippingStatus.ROASTED
+                    }
+                    boxViewModel.updateStatus(nextStatus)
+                }
+            ) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
+                    contentDescription = "Simulate Status Update",
                     tint = DarkBrown
                 )
             }
@@ -90,7 +108,7 @@ fun BoxScreen(onScan: () -> Unit) {
                         ) {
                             Text(text = "🚚", fontSize = 12.sp)
                             Text(
-                                text = "In Transit",
+                                text = shippingStatus.label,
                                 fontSize = 12.sp,
                                 color = DarkBrown,
                                 fontWeight = FontWeight.Medium
@@ -119,7 +137,7 @@ fun BoxScreen(onScan: () -> Unit) {
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
-                        text = "☕",
+                        text = if (shippingStatus == ShippingStatus.DELIVERED) "🎁" else "☕",
                         fontSize = 64.sp,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -129,7 +147,7 @@ fun BoxScreen(onScan: () -> Unit) {
                         color = DarkBrown.copy(alpha = 0.6f)
                     ) {
                         Text(
-                            text = "Arriving by March 15",
+                            text = if (shippingStatus == ShippingStatus.DELIVERED) "Package Delivered" else "Arriving by March 15",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                             color = Cream,
                             fontSize = 12.sp,
@@ -151,7 +169,7 @@ fun BoxScreen(onScan: () -> Unit) {
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "2 of 3 steps completed",
+                        text = "${shippingStatus.step} of 4 steps completed",
                         fontSize = 12.sp,
                         color = DarkBrown.copy(alpha = 0.5f)
                     )
@@ -160,7 +178,7 @@ fun BoxScreen(onScan: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
 
                 LinearProgressIndicator(
-                    progress = { 0.66f },
+                    progress = { shippingStatus.step / 4f },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(6.dp)
@@ -175,12 +193,12 @@ fun BoxScreen(onScan: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    listOf("ROASTED", "SHIPPED", "DELIVERED").forEach { step ->
+                    ShippingStatus.entries.forEach { status ->
                         Text(
-                            text = step,
+                            text = status.name,
                             fontSize = 10.sp,
-                            color = if (step == "SHIPPED") Brown700 else DarkBrown.copy(alpha = 0.4f),
-                            fontWeight = if (step == "SHIPPED") FontWeight.Bold else FontWeight.Normal,
+                            color = if (status == shippingStatus) Brown700 else DarkBrown.copy(alpha = 0.4f),
+                            fontWeight = if (status == shippingStatus) FontWeight.Bold else FontWeight.Normal,
                             letterSpacing = 0.5.sp
                         )
                     }
